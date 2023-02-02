@@ -2,17 +2,19 @@ package Kodlama.io.Kodlama.io.Devs.business.abstracts;
 
 import java.util.List;
 
-import Kodlama.io.Kodlama.io.Devs.entities.ProgrammingLanguage;
+import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageRequest;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
 
 public interface ProgrammingLanguageService {
 
-	void add(ProgrammingLanguage programmingLanguage) throws Exception;
+	void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception;
 
-	void update(ProgrammingLanguage oldPLanguage, ProgrammingLanguage newPLanguage) throws Exception;
+	void update(GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse,
+			CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception;
 
-	void delete(ProgrammingLanguage programmingLanguage) throws Exception;
+	void delete(GetAllProgrammingLanguagesResponse gtAllProgrammingLanguagesResponse) throws Exception;
 
-	List<ProgrammingLanguage> getAll();
+	List<GetAllProgrammingLanguagesResponse> getAll();
 
-	ProgrammingLanguage getWithId(int id) throws Exception;
+	GetAllProgrammingLanguagesResponse getWithId(int id) throws Exception;
 }

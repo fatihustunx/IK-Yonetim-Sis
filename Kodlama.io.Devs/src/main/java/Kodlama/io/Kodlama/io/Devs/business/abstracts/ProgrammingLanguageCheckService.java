@@ -2,10 +2,11 @@ package Kodlama.io.Kodlama.io.Devs.business.abstracts;
 
 import java.util.List;
 
-import Kodlama.io.Kodlama.io.Devs.entities.ProgrammingLanguage;
+import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageRequest;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
 
 public interface ProgrammingLanguageCheckService {
 
-	boolean checkProgrammingLanguage(ProgrammingLanguage programmingLanguage,
-			List<ProgrammingLanguage> programmingLanguages);
+	boolean checkProgrammingLanguage(CreateProgrammingLanguageRequest createProgrammingLanguageRequest,
+			List<GetAllProgrammingLanguagesResponse> getAllProgrammingLanguagesResponses);
 }
