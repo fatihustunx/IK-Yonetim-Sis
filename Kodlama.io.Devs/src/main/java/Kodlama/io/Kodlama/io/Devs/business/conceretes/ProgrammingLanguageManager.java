@@ -1,15 +1,18 @@
 package Kodlama.io.Kodlama.io.Devs.business.conceretes;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageCheckService;
 import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageRequest;
+import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
 import Kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.ProgrammingLanguageRepository;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
@@ -20,105 +23,134 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 	private ProgrammingLanguageRepository programmingLanguageRepository;
 	private ProgrammingLanguageCheckService programmingLanguageCheckService;
 
+	private ModelMapper modelMapper;
+
 	@Autowired
 	public ProgrammingLanguageManager(ProgrammingLanguageRepository programmingLanguageRepository,
-			ProgrammingLanguageCheckService programmingLanguageCheckService) {
+			ProgrammingLanguageCheckService programmingLanguageCheckService, ModelMapper modelMapper) {
 		this.programmingLanguageRepository = programmingLanguageRepository;
 		this.programmingLanguageCheckService = programmingLanguageCheckService;
+
+		this.modelMapper = modelMapper;
 	}
 
 	@Override
 	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {
 
 		if (programmingLanguageCheckService.checkProgrammingLanguage(createProgrammingLanguageRequest, getAll())) {
-			ProgrammingLanguage programmingLanguage=new ProgrammingLanguage();
-			programmingLanguage.setName(createProgrammingLanguageRequest.getName());
-			programmingLanguageRepository.save(programmingLanguage);
+			/*
+			 * ProgrammingLanguage programmingLanguage=new ProgrammingLanguage();
+			 * programmingLanguage.setName(createProgrammingLanguageRequest.getName());
+			 * programmingLanguageRepository.save(programmingLanguage);
+			 */
+			programmingLanguageRepository
+					.save(modelMapper.map(createProgrammingLanguageRequest, ProgrammingLanguage.class));
+
 		} else {
 			throw new Exception("Check the programming language you are trying to add !");
 		}
 	}
 
 	@Override
-	public void update(GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse,
-			CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {
+	public void update(UpdateProgrammingLanguageRequest updateProgrammingLanguageRequest) throws Exception {
 
-		if (getAll() == null) {
+		if (getAll().getBody() == null) {
 			throw new Exception("Programming languages list is null !");
 		}
 
-		boolean counter = false;
-		for (GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse2 : getAll()) {
-			if (getProgrammingLanguageResponse == getProgrammingLanguageResponse2) {
-				counter = true;
-			}
-		}
-		if (counter) {
-			List<GetAllProgrammingLanguagesResponse> temp = getAll();
-			temp.remove(getProgrammingLanguageResponse);
+		for (GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse2 : getAll().getBody()) {
+			if (updateProgrammingLanguageRequest.getId() == getProgrammingLanguageResponse2.getId()) {
 
-			if (programmingLanguageCheckService.checkProgrammingLanguage(createProgrammingLanguageRequest, temp)) {
-				ProgrammingLanguage programmingLanguage=programmingLanguageRepository
-						.getReferenceById(getProgrammingLanguageResponse.getId());
-				programmingLanguage.setName(createProgrammingLanguageRequest.getName());
-				programmingLanguageRepository.save(programmingLanguage);
-				
-			} else {
-				throw new Exception("Check the new programming language you are trying to update !");
-			}
-		} else {
-			throw new Exception("Check the old programming language you are trying to update !");
-		}
+				ResponseEntity<List<GetAllProgrammingLanguagesResponse>> temp = getAll();
+				temp.getBody().remove(getProgrammingLanguageResponse2);
 
-	}
+				CreateProgrammingLanguageRequest createProgrammingLanguageRequest = modelMapper
+						.map(updateProgrammingLanguageRequest, CreateProgrammingLanguageRequest.class);
 
-	@Override
-	public void delete(GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse) throws Exception {
+				if (programmingLanguageCheckService.checkProgrammingLanguage(createProgrammingLanguageRequest, temp)) {
 
-		try {
-			for (GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse2 : getAll()) {
-				if (getProgrammingLanguageResponse == getAllProgrammingLanguagesResponse2) {
-					ProgrammingLanguage programmingLanguage=programmingLanguageRepository
-							.getReferenceById(getProgrammingLanguageResponse.getId());
-					programmingLanguageRepository.delete(programmingLanguage);
+					programmingLanguageRepository
+							.save(modelMapper.map(updateProgrammingLanguageRequest, ProgrammingLanguage.class));
+					/*
+					 * ProgrammingLanguage programmingLanguage = programmingLanguageRepository
+					 * .getReferenceById(getProgrammingLanguageResponse.getId());
+					 * programmingLanguage.setName(createProgrammingLanguageRequest.getName());
+					 * programmingLanguageRepository.save(programmingLanguage);
+					 */
+				} else {
+					throw new Exception("Check the new programming language you are trying to update !");
 				}
+			} else {
+				throw new Exception("Check the old programming language you are trying to update !");
 			}
-		} catch (Exception e) {
-			System.out.println("Check the programming language you are trying to delete !");
 		}
 	}
 
 	@Override
-	public List<GetAllProgrammingLanguagesResponse> getAll() {
-		
-		List<ProgrammingLanguage> programmingLanguages=programmingLanguageRepository.findAll();
-		List<GetAllProgrammingLanguagesResponse> programmingLanguagesResponses=new ArrayList<GetAllProgrammingLanguagesResponse>();
-		
-		for (ProgrammingLanguage programmingLanguage : programmingLanguages) {
-				GetAllProgrammingLanguagesResponse responseItem=new GetAllProgrammingLanguagesResponse();
-				responseItem.setId(programmingLanguage.getId());
-				responseItem.setName(programmingLanguage.getName());
-				programmingLanguagesResponses.add(responseItem);
-		}
+	public void delete(int id) throws Exception {
 
-		return programmingLanguagesResponses;
-	}
+		Optional<ProgrammingLanguage> optionalProgrammingLanguage = programmingLanguageRepository.findById(id);
 
-	@Override
-	public GetAllProgrammingLanguagesResponse getWithId(int id) throws Exception {
-		
-		Optional<ProgrammingLanguage> programmingLanguageOptional=programmingLanguageRepository.findById(id);
-		
-		if (programmingLanguageOptional.isPresent()) {
-			GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse=new GetAllProgrammingLanguagesResponse();
-			
-			getProgrammingLanguageResponse.setId(programmingLanguageOptional.get().getId());
-			getProgrammingLanguageResponse.setName(programmingLanguageOptional.get().getName());
-			
-			return getProgrammingLanguageResponse;
+		if (optionalProgrammingLanguage.isPresent()) {
+			programmingLanguageRepository.deleteById(id);
 		} else {
-			throw new Exception("Check the programming language's id you are trying to get !");
+			throw new Exception("404 not found !");
 		}
+	}
+
+	@Override
+	public ResponseEntity<GetAllProgrammingLanguagesResponse> getWithId(int id) {
+
+		Optional<ProgrammingLanguage> programmingLanguageOptional = programmingLanguageRepository.findById(id);
+
+		if (programmingLanguageOptional.isPresent()) {
+			/*
+			 * GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse = new
+			 * GetAllProgrammingLanguagesResponse();
+			 * 
+			 * getProgrammingLanguageResponse.setId(programmingLanguageOptional.get().getId(
+			 * )); getProgrammingLanguageResponse.setName(programmingLanguageOptional.get().
+			 * getName());
+			 * 
+			 * return getProgrammingLanguageResponse;
+			 */
+			return ResponseEntity
+					.ok(modelMapper.map(programmingLanguageOptional.get(), GetAllProgrammingLanguagesResponse.class));
+
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@Override
+	public ResponseEntity<List<GetAllProgrammingLanguagesResponse>> getAll() {
+
+		List<ProgrammingLanguage> programmingLanguages = programmingLanguageRepository.findAll();
+
+		if (programmingLanguages.isEmpty()) {
+
+			return ResponseEntity.notFound().build();
+		}
+
+		return ResponseEntity.ok(programmingLanguages.stream()
+				.map(source -> modelMapper.map(source, GetAllProgrammingLanguagesResponse.class))
+				.collect(Collectors.toList()));
+
+		/*
+		 * List<ProgrammingLanguage> programmingLanguages =
+		 * programmingLanguageRepository.findAll();
+		 * List<GetAllProgrammingLanguagesResponse> programmingLanguagesResponses = new
+		 * ArrayList<GetAllProgrammingLanguagesResponse>();
+		 * 
+		 * for (ProgrammingLanguage programmingLanguage : programmingLanguages) {
+		 * GetAllProgrammingLanguagesResponse responseItem = new
+		 * GetAllProgrammingLanguagesResponse();
+		 * responseItem.setId(programmingLanguage.getId());
+		 * responseItem.setName(programmingLanguage.getName());
+		 * programmingLanguagesResponses.add(responseItem); }
+		 * 
+		 * return programmingLanguagesResponses;
+		 */
 	}
 
 }

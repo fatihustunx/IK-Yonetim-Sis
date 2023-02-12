@@ -2,6 +2,7 @@ package Kodlama.io.Kodlama.io.Devs.business.conceretes;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageCheckService;
@@ -13,7 +14,7 @@ public class ProgrammingLanguageCheckManager implements ProgrammingLanguageCheck
 
 	@Override
 	public boolean checkProgrammingLanguage(CreateProgrammingLanguageRequest createProgrammingLanguageRequest,
-			List<GetAllProgrammingLanguagesResponse> getAllProgrammingLanguagesResponses) {
+			ResponseEntity<List<GetAllProgrammingLanguagesResponse>> getAllProgrammingLanguagesResponses) {
 
 		if (createProgrammingLanguageRequest == null) {
 			return false;
@@ -30,9 +31,12 @@ public class ProgrammingLanguageCheckManager implements ProgrammingLanguageCheck
 			return false;
 		}
 
-		for (GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse : getAllProgrammingLanguagesResponses) {
-			if (createProgrammingLanguageRequest.getName() == getAllProgrammingLanguagesResponse.getName()) {
-				return false;
+		if (getAllProgrammingLanguagesResponses.getBody()!=null) {
+			for (GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse : getAllProgrammingLanguagesResponses
+					.getBody()) {
+				if (createProgrammingLanguageRequest.getName() == getAllProgrammingLanguagesResponse.getName()) {
+					return false;
+				}
 			}
 		}
 
