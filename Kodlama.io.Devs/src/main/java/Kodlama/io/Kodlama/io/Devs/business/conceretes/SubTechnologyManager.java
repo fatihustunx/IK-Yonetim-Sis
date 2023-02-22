@@ -40,7 +40,15 @@ public class SubTechnologyManager implements SubTechnologyService {
 
 		SubTechnology subTechnology;
 		subTechnology = modelMapper.map(createSubTechnologyRequest, SubTechnology.class);
-
+		
+		// createRequest.getProgrammingLanguageId == subTechnology.getId; !!!!
+		
+		// responseEntity only controller !!
+		
+		// Validation & Exception !!!
+		
+		// modelMapper !
+		
 		subTechnology.setProgrammingLanguage(modelMapper.map(
 				programmingLanguageService.getWithId(createSubTechnologyRequest.getProgrammingLanguageId()).getBody(),
 				ProgrammingLanguage.class));
