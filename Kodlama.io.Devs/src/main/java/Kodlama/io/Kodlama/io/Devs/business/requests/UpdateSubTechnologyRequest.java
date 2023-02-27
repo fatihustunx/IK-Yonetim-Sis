@@ -11,6 +11,6 @@ public class UpdateSubTechnologyRequest {
 
 	private int id;
 	private String name;
-	
+
 	private int programmingLanguageId;
 }

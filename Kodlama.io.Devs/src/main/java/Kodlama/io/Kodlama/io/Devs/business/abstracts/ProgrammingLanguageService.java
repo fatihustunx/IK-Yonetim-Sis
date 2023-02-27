@@ -17,6 +17,6 @@ public interface ProgrammingLanguageService {
 	void delete(int id) throws Exception;
 
 	ResponseEntity<GetAllProgrammingLanguagesResponse> getWithId(int id);
-	
+
 	ResponseEntity<List<GetAllProgrammingLanguagesResponse>> getAll();
 }

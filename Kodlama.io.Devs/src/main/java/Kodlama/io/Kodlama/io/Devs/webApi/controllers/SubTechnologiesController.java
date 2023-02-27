@@ -2,7 +2,6 @@ package Kodlama.io.Kodlama.io.Devs.webApi.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,18 +16,14 @@ import Kodlama.io.Kodlama.io.Devs.business.abstracts.SubTechnologyService;
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateSubTechnologyRequest;
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateSubTechnologyRequest;
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetSubTechnologyResponse;
+import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/subTechnologies")
+@AllArgsConstructor
 public class SubTechnologiesController {
 
 	private SubTechnologyService subTechnologyService;
-
-	@Autowired
-	public SubTechnologiesController(SubTechnologyService subTechnologyService) {
-		super();
-		this.subTechnologyService = subTechnologyService;
-	}
 
 	@PostMapping("/add")
 	void add(@RequestBody CreateSubTechnologyRequest createSubTechnologyRequest) throws Exception {

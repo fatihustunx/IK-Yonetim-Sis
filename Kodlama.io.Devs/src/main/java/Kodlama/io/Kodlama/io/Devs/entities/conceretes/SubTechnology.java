@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name="subTechnologies")
+@Table(name = "subTechnologies")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,13 +22,13 @@ import lombok.Setter;
 public class SubTechnology {
 
 	@Id
-	@Column(name="id")
+	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	
-	@Column(name="name")
+
+	@Column(name = "name")
 	private String name;
-	
+
 	@ManyToOne
 	private ProgrammingLanguage programmingLanguage;
 }

@@ -2,7 +2,6 @@ package Kodlama.io.Kodlama.io.Devs.webApi.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,17 +14,14 @@ import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
+import lombok.AllArgsConstructor;
 
 @RestController // annotation
 @RequestMapping("/api/programmingLanguages")
+@AllArgsConstructor
 public class ProgrammingLanguagesController {
 
 	private ProgrammingLanguageService programmingLanguageService;
-
-	@Autowired
-	public ProgrammingLanguagesController(ProgrammingLanguageService programmingLanguageService) {
-		this.programmingLanguageService = programmingLanguageService;
-	}
 
 	@PostMapping("/add")
 	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {
@@ -43,7 +39,7 @@ public class ProgrammingLanguagesController {
 	}
 
 	@GetMapping("/getwithid")
-	public ResponseEntity<GetAllProgrammingLanguagesResponse> getWithId(int id){
+	public ResponseEntity<GetAllProgrammingLanguagesResponse> getWithId(int id) {
 		return programmingLanguageService.getWithId(id);
 	}
 

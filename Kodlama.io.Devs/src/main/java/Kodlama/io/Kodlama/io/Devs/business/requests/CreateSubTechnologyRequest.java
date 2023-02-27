@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class CreateSubTechnologyRequest {
 
 	private String name;
-	
+
 	private int programmingLanguageId;
 }

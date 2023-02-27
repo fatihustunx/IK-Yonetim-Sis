@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -18,37 +17,30 @@ import Kodlama.io.Kodlama.io.Devs.business.responses.GetSubTechnologyResponse;
 import Kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.SubTechnologyRepository;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.SubTechnology;
+import lombok.AllArgsConstructor;
 
 @Service
+@AllArgsConstructor
 public class SubTechnologyManager implements SubTechnologyService {
 
 	private ProgrammingLanguageService programmingLanguageService;
 	private SubTechnologyRepository subTechnologyRepository;
 	private ModelMapper modelMapper;
 
-	@Autowired
-	public SubTechnologyManager(ProgrammingLanguageService programmingLanguageService,
-			SubTechnologyRepository subTechnologyRepository, ModelMapper modelMapper) {
-		super();
-		this.programmingLanguageService = programmingLanguageService;
-		this.subTechnologyRepository = subTechnologyRepository;
-		this.modelMapper = modelMapper;
-	}
-
 	@Override
 	public void add(CreateSubTechnologyRequest createSubTechnologyRequest) throws Exception {
 
 		SubTechnology subTechnology;
 		subTechnology = modelMapper.map(createSubTechnologyRequest, SubTechnology.class);
-		
+
 		// createRequest.getProgrammingLanguageId == subTechnology.getId; !!!!
-		
+
 		// responseEntity only controller !!
-		
+
 		// Validation & Exception !!!
-		
+
 		// modelMapper !
-		
+
 		subTechnology.setProgrammingLanguage(modelMapper.map(
 				programmingLanguageService.getWithId(createSubTechnologyRequest.getProgrammingLanguageId()).getBody(),
 				ProgrammingLanguage.class));

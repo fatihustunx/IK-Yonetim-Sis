@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,23 +15,16 @@ import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateProgrammingLanguageReq
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
 import Kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.ProgrammingLanguageRepository;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
+import lombok.AllArgsConstructor;
 
 @Service
+@AllArgsConstructor
 public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 
 	private ProgrammingLanguageRepository programmingLanguageRepository;
 	private ProgrammingLanguageCheckService programmingLanguageCheckService;
 
 	private ModelMapper modelMapper;
-
-	@Autowired
-	public ProgrammingLanguageManager(ProgrammingLanguageRepository programmingLanguageRepository,
-			ProgrammingLanguageCheckService programmingLanguageCheckService, ModelMapper modelMapper) {
-		this.programmingLanguageRepository = programmingLanguageRepository;
-		this.programmingLanguageCheckService = programmingLanguageCheckService;
-
-		this.modelMapper = modelMapper;
-	}
 
 	@Override
 	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {

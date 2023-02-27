@@ -11,6 +11,6 @@ public class GetSubTechnologyResponse {
 
 	private int id;
 	private String name;
-	
+
 	private GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse;
 }

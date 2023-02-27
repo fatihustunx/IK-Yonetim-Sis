@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name="programingLanguages")
+@Table(name = "programingLanguages")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,13 +24,13 @@ import lombok.Setter;
 public class ProgrammingLanguage {
 
 	@Id
-	@Column(name="id")
+	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	
-	@Column(name="name")
+
+	@Column(name = "name")
 	private String name;
-	
+
 	@OneToMany(mappedBy = "programmingLanguage")
 	private List<SubTechnology> subTechnologies;
 }
