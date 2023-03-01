@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageCheckService;
@@ -13,6 +11,8 @@ import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetByIdProgrammingLanguageResponse;
+import Kodlama.io.Kodlama.io.Devs.core.utilities.mappers.ModelMapperService;
 import Kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.ProgrammingLanguageRepository;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
 import lombok.AllArgsConstructor;
@@ -24,19 +24,53 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 	private ProgrammingLanguageRepository programmingLanguageRepository;
 	private ProgrammingLanguageCheckService programmingLanguageCheckService;
 
-	private ModelMapper modelMapper;
+	private ModelMapperService modelMapperService;
+
+	@Override
+	public List<GetAllProgrammingLanguagesResponse> getAll() throws Exception {
+
+		List<ProgrammingLanguage> programmingLanguages = programmingLanguageRepository.findAll();
+
+		if (programmingLanguages.isEmpty()) {
+
+			throw new Exception("404 not found !");
+		}
+
+		List<GetAllProgrammingLanguagesResponse> programmingLanguagesResponse = programmingLanguages.stream()
+				.map(programmingLanguage -> this.modelMapperService.forResponse().map(programmingLanguage,
+						GetAllProgrammingLanguagesResponse.class))
+				.collect(Collectors.toList());
+
+		return programmingLanguagesResponse;
+	}
+
+	@Override
+	public GetByIdProgrammingLanguageResponse getById(int id) throws Exception {
+
+		Optional<ProgrammingLanguage> programmingLanguageOptional = programmingLanguageRepository.findById(id);
+
+		if (programmingLanguageOptional.isPresent()) {
+
+			GetByIdProgrammingLanguageResponse programmingLanguageResponse = this.modelMapperService.forResponse()
+					.map(programmingLanguageOptional.get(), GetByIdProgrammingLanguageResponse.class);
+
+			return programmingLanguageResponse;
+
+		} else {
+			throw new Exception("404 not found !");
+		}
+	}
 
 	@Override
 	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {
 
-		if (programmingLanguageCheckService.checkProgrammingLanguage(createProgrammingLanguageRequest, getAll())) {
-			/*
-			 * ProgrammingLanguage programmingLanguage=new ProgrammingLanguage();
-			 * programmingLanguage.setName(createProgrammingLanguageRequest.getName());
-			 * programmingLanguageRepository.save(programmingLanguage);
-			 */
-			programmingLanguageRepository
-					.save(modelMapper.map(createProgrammingLanguageRequest, ProgrammingLanguage.class));
+		if (programmingLanguageCheckService.checkCreateProgrammingLanguage(createProgrammingLanguageRequest,
+				getAll())) {
+
+			ProgrammingLanguage programmingLanguage = this.modelMapperService.forRequest()
+					.map(createProgrammingLanguageRequest, ProgrammingLanguage.class);
+
+			programmingLanguageRepository.save(programmingLanguage);
 
 		} else {
 			throw new Exception("Check the programming language you are trying to add !");
@@ -46,34 +80,27 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 	@Override
 	public void update(UpdateProgrammingLanguageRequest updateProgrammingLanguageRequest) throws Exception {
 
-		if (getAll().getBody() == null) {
+		if (getAll() == null) {
 			throw new Exception("Programming languages list is null !");
 		}
 
-		for (GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse2 : getAll().getBody()) {
-			if (updateProgrammingLanguageRequest.getId() == getProgrammingLanguageResponse2.getId()) {
+		for (GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse : getAll()) {
 
-				ResponseEntity<List<GetAllProgrammingLanguagesResponse>> temp = getAll();
-				temp.getBody().remove(getProgrammingLanguageResponse2);
+			if (updateProgrammingLanguageRequest.getId() == getProgrammingLanguageResponse.getId()) {
 
-				CreateProgrammingLanguageRequest createProgrammingLanguageRequest = modelMapper
-						.map(updateProgrammingLanguageRequest, CreateProgrammingLanguageRequest.class);
+				if (programmingLanguageCheckService.checkUpdateProgrammingLanguage(updateProgrammingLanguageRequest,
+						getAll())) {
 
-				if (programmingLanguageCheckService.checkProgrammingLanguage(createProgrammingLanguageRequest, temp)) {
+					ProgrammingLanguage programmingLanguage = this.modelMapperService.forRequest()
+							.map(updateProgrammingLanguageRequest, ProgrammingLanguage.class);
 
-					programmingLanguageRepository
-							.save(modelMapper.map(updateProgrammingLanguageRequest, ProgrammingLanguage.class));
-					/*
-					 * ProgrammingLanguage programmingLanguage = programmingLanguageRepository
-					 * .getReferenceById(getProgrammingLanguageResponse.getId());
-					 * programmingLanguage.setName(createProgrammingLanguageRequest.getName());
-					 * programmingLanguageRepository.save(programmingLanguage);
-					 */
+					this.programmingLanguageRepository.save(programmingLanguage);
+
 				} else {
-					throw new Exception("Check the new programming language you are trying to update !");
+					throw new Exception("Check the programming language you are trying to update !");
 				}
 			} else {
-				throw new Exception("Check the old programming language you are trying to update !");
+				throw new Exception("Check the programming language's id you are trying to update !");
 			}
 		}
 	}
@@ -86,63 +113,8 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 		if (optionalProgrammingLanguage.isPresent()) {
 			programmingLanguageRepository.deleteById(id);
 		} else {
-			throw new Exception("404 not found !");
+			throw new Exception("404 not found ! | Check the programming language's id you are trying to delete !");
 		}
-	}
-
-	@Override
-	public ResponseEntity<GetAllProgrammingLanguagesResponse> getWithId(int id) {
-
-		Optional<ProgrammingLanguage> programmingLanguageOptional = programmingLanguageRepository.findById(id);
-
-		if (programmingLanguageOptional.isPresent()) {
-			/*
-			 * GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse = new
-			 * GetAllProgrammingLanguagesResponse();
-			 * 
-			 * getProgrammingLanguageResponse.setId(programmingLanguageOptional.get().getId(
-			 * )); getProgrammingLanguageResponse.setName(programmingLanguageOptional.get().
-			 * getName());
-			 * 
-			 * return getProgrammingLanguageResponse;
-			 */
-			return ResponseEntity
-					.ok(modelMapper.map(programmingLanguageOptional.get(), GetAllProgrammingLanguagesResponse.class));
-
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	@Override
-	public ResponseEntity<List<GetAllProgrammingLanguagesResponse>> getAll() {
-
-		List<ProgrammingLanguage> programmingLanguages = programmingLanguageRepository.findAll();
-
-		if (programmingLanguages.isEmpty()) {
-
-			return ResponseEntity.notFound().build();
-		}
-
-		return ResponseEntity.ok(programmingLanguages.stream()
-				.map(source -> modelMapper.map(source, GetAllProgrammingLanguagesResponse.class))
-				.collect(Collectors.toList()));
-
-		/*
-		 * List<ProgrammingLanguage> programmingLanguages =
-		 * programmingLanguageRepository.findAll();
-		 * List<GetAllProgrammingLanguagesResponse> programmingLanguagesResponses = new
-		 * ArrayList<GetAllProgrammingLanguagesResponse>();
-		 * 
-		 * for (ProgrammingLanguage programmingLanguage : programmingLanguages) {
-		 * GetAllProgrammingLanguagesResponse responseItem = new
-		 * GetAllProgrammingLanguagesResponse();
-		 * responseItem.setId(programmingLanguage.getId());
-		 * responseItem.setName(programmingLanguage.getName());
-		 * programmingLanguagesResponses.add(responseItem); }
-		 * 
-		 * return programmingLanguagesResponses;
-		 */
 	}
 
 }

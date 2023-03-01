@@ -42,7 +42,7 @@ public class SubTechnologyManager implements SubTechnologyService {
 		// modelMapper !
 
 		subTechnology.setProgrammingLanguage(modelMapper.map(
-				programmingLanguageService.getWithId(createSubTechnologyRequest.getProgrammingLanguageId()).getBody(),
+				programmingLanguageService.getById(createSubTechnologyRequest.getProgrammingLanguageId()),
 				ProgrammingLanguage.class));
 
 		/*
@@ -61,7 +61,7 @@ public class SubTechnologyManager implements SubTechnologyService {
 		subTechnology = modelMapper.map(updateSubTechnologyRequest, SubTechnology.class);
 
 		subTechnology.setProgrammingLanguage(modelMapper.map(
-				programmingLanguageService.getWithId(updateSubTechnologyRequest.getProgrammingLanguageId()).getBody(),
+				programmingLanguageService.getById(updateSubTechnologyRequest.getProgrammingLanguageId()),
 				ProgrammingLanguage.class));
 
 		subTechnologyRepository.save(subTechnology);
