@@ -2,21 +2,20 @@ package Kodlama.io.Kodlama.io.Devs.business.abstracts;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateSubTechnologyRequest;
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateSubTechnologyRequest;
-import Kodlama.io.Kodlama.io.Devs.business.responses.GetSubTechnologyResponse;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllSubTechnologiesResponse;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetByIdSubTechnologyResponse;
 
 public interface SubTechnologyService {
 
-	ResponseEntity<List<GetSubTechnologyResponse>> getAll();
+	List<GetAllSubTechnologiesResponse> getAll();
 
-	ResponseEntity<GetSubTechnologyResponse> getWithId(int id);
-	
-	void add(CreateSubTechnologyRequest createSubTechnologyRequest) throws Exception;
+	GetByIdSubTechnologyResponse getById(int id);
 
-	void update(UpdateSubTechnologyRequest updateSubTechnologyRequest) throws Exception;
+	void add(CreateSubTechnologyRequest createSubTechnologyRequest);
 
-	void delete(int id) throws Exception;
+	void update(UpdateSubTechnologyRequest updateSubTechnologyRequest);
+
+	void delete(int id);
 }

@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetSubTechnologyResponse {
+public class GetAllSubTechnologiesResponse {
 
 	private int id;
 	private String name;
 
-	private GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse;
+	private String programmingLanguageName;
 }

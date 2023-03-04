@@ -1,21 +1,17 @@
 package Kodlama.io.Kodlama.io.Devs.business.conceretes;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
 import Kodlama.io.Kodlama.io.Devs.business.abstracts.SubTechnologyService;
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateSubTechnologyRequest;
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateSubTechnologyRequest;
-import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
-import Kodlama.io.Kodlama.io.Devs.business.responses.GetSubTechnologyResponse;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllSubTechnologiesResponse;
+import Kodlama.io.Kodlama.io.Devs.business.responses.GetByIdSubTechnologyResponse;
+import Kodlama.io.Kodlama.io.Devs.core.utilities.mappers.ModelMapperService;
 import Kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.SubTechnologyRepository;
-import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.SubTechnology;
 import lombok.AllArgsConstructor;
 
@@ -23,15 +19,38 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SubTechnologyManager implements SubTechnologyService {
 
-	private ProgrammingLanguageService programmingLanguageService;
 	private SubTechnologyRepository subTechnologyRepository;
-	private ModelMapper modelMapper;
+	private ModelMapperService modelMapperService;
 
 	@Override
-	public void add(CreateSubTechnologyRequest createSubTechnologyRequest) throws Exception {
+	public List<GetAllSubTechnologiesResponse> getAll() {
 
-		SubTechnology subTechnology;
-		subTechnology = modelMapper.map(createSubTechnologyRequest, SubTechnology.class);
+		List<SubTechnology> subTechnologies = this.subTechnologyRepository.findAll();
+
+		List<GetAllSubTechnologiesResponse> subTechnologiesResponse = subTechnologies.stream()
+				.map(subTechnology -> this.modelMapperService.forResponse().map(subTechnology,
+						GetAllSubTechnologiesResponse.class))
+				.collect(Collectors.toList());
+
+		return subTechnologiesResponse;
+	}
+
+	@Override
+	public GetByIdSubTechnologyResponse getById(int id) {
+
+		SubTechnology subTechnology = this.subTechnologyRepository.findById(id).orElseThrow();
+
+		GetByIdSubTechnologyResponse subTechnologyResponse = this.modelMapperService.forResponse().map(subTechnology,
+				GetByIdSubTechnologyResponse.class);
+
+		return subTechnologyResponse;
+	}
+
+	@Override
+	public void add(CreateSubTechnologyRequest createSubTechnologyRequest) {
+
+		SubTechnology subTechnology = this.modelMapperService.forRequest().map(createSubTechnologyRequest,
+				SubTechnology.class);
 
 		// createRequest.getProgrammingLanguageId == subTechnology.getId; !!!!
 
@@ -41,127 +60,24 @@ public class SubTechnologyManager implements SubTechnologyService {
 
 		// modelMapper !
 
-		subTechnology.setProgrammingLanguage(modelMapper.map(
-				programmingLanguageService.getById(createSubTechnologyRequest.getProgrammingLanguageId()),
-				ProgrammingLanguage.class));
+		subTechnology.setId(0); //
 
-		/*
-		 * subTechnology.setProgrammingLanguage(modelMapper
-		 * .map(createSubTechnologyRequest.getCreateProgrammingLanguageRequest(),
-		 * ProgrammingLanguage.class ));
-		 */
-
-		subTechnologyRepository.save(subTechnology);
+		this.subTechnologyRepository.save(subTechnology);
 	}
 
 	@Override
-	public void update(UpdateSubTechnologyRequest updateSubTechnologyRequest) throws Exception {
+	public void update(UpdateSubTechnologyRequest updateSubTechnologyRequest) {
 
-		SubTechnology subTechnology;
-		subTechnology = modelMapper.map(updateSubTechnologyRequest, SubTechnology.class);
+		SubTechnology subTechnology = this.modelMapperService.forRequest().map(updateSubTechnologyRequest,
+				SubTechnology.class);
 
-		subTechnology.setProgrammingLanguage(modelMapper.map(
-				programmingLanguageService.getById(updateSubTechnologyRequest.getProgrammingLanguageId()),
-				ProgrammingLanguage.class));
-
-		subTechnologyRepository.save(subTechnology);
+		this.subTechnologyRepository.save(subTechnology);
 	}
 
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(int id) {
 
-		Optional<SubTechnology> optionalSubTechnology = subTechnologyRepository.findById(id);
-
-		if (optionalSubTechnology.isPresent()) {
-			subTechnologyRepository.deleteById(id);
-		} else {
-			throw new Exception("404 not found !");
-		}
-	}
-
-	@Override
-	public ResponseEntity<GetSubTechnologyResponse> getWithId(int id) {
-
-		Optional<SubTechnology> subTechnologyOptional = subTechnologyRepository.findById(id);
-
-		if (subTechnologyOptional.isPresent()) {
-
-			GetSubTechnologyResponse getSubTechnologyResponse = modelMapper.map(subTechnologyOptional.get(),
-					GetSubTechnologyResponse.class);
-
-			getSubTechnologyResponse.setGetAllProgrammingLanguagesResponse(modelMapper.map(
-					subTechnologyOptional.get().getProgrammingLanguage(), GetAllProgrammingLanguagesResponse.class));
-
-			return ResponseEntity.ok(getSubTechnologyResponse);
-			/*
-			 * GetSubTechnologyResponse getSubTechnologyResponse=new
-			 * GetSubTechnologyResponse();
-			 * getSubTechnologyResponse.setId(subTechnologyOptional.get().getId());
-			 * getSubTechnologyResponse.setName(subTechnologyOptional.get().getName());
-			 * 
-			 * GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse=new
-			 * GetAllProgrammingLanguagesResponse();
-			 * getAllProgrammingLanguagesResponse.setId(subTechnologyOptional.get().getId())
-			 * ; getAllProgrammingLanguagesResponse.setName(subTechnologyOptional.get().
-			 * getName());
-			 * 
-			 * getSubTechnologyResponse.setGetAllProgrammingLanguagesResponse(
-			 * getAllProgrammingLanguagesResponse);
-			 * 
-			 * return getSubTechnologyResponse;
-			 */
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-
-	@Override
-	public ResponseEntity<List<GetSubTechnologyResponse>> getAll() {
-
-		List<SubTechnology> subTechnologies = subTechnologyRepository.findAll();
-
-		if (subTechnologies.isEmpty()) {
-			return ResponseEntity.notFound().build();
-		}
-
-		List<GetSubTechnologyResponse> getSubTechnologyResponses = new ArrayList<>();
-
-		for (SubTechnology subTechnology : subTechnologies) {
-			GetSubTechnologyResponse getSubTechnologyResponse = modelMapper.map(subTechnology,
-					GetSubTechnologyResponse.class);
-			getSubTechnologyResponse.setGetAllProgrammingLanguagesResponse(
-					modelMapper.map(subTechnology.getProgrammingLanguage(), GetAllProgrammingLanguagesResponse.class));
-			getSubTechnologyResponses.add(getSubTechnologyResponse);
-		}
-
-		return ResponseEntity.ok(getSubTechnologyResponses);
-		/*
-		 * List<SubTechnology> subTechnologies=subTechnologyRepository.findAll();
-		 * List<GetSubTechnologyResponse> getSubTechnologyResponses=new
-		 * ArrayList<GetSubTechnologyResponse>();
-		 * 
-		 * for (SubTechnology subTechnology : subTechnologies) {
-		 * GetSubTechnologyResponse responseItem=new GetSubTechnologyResponse();
-		 * responseItem.setId(subTechnology.getId());
-		 * responseItem.setName(subTechnology.getName());
-		 * 
-		 * GetAllProgrammingLanguagesResponse getAllProgrammingLanguagesResponse=new
-		 * GetAllProgrammingLanguagesResponse();
-		 * getAllProgrammingLanguagesResponse.setId(subTechnology.getProgrammingLanguage
-		 * ().getId()); getAllProgrammingLanguagesResponse.setName(subTechnology.
-		 * getProgrammingLanguage().getName());
-		 * 
-		 * responseItem.setGetAllProgrammingLanguagesResponse(
-		 * getAllProgrammingLanguagesResponse);
-		 * getSubTechnologyResponses.add(responseItem); }
-		 * 
-		 * return getSubTechnologyResponses;
-		 */
-		/*
-		 * return subTechnologyRepository.findAll().stream().map(source ->
-		 * modelMapper.map(source, GetSubTechnologyResponse.class))
-		 * .collect(Collectors.toList());
-		 */
+		this.subTechnologyRepository.deleteById(id);
 	}
 
 }
