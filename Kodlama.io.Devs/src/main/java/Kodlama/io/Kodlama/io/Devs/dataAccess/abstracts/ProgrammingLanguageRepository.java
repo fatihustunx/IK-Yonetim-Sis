@@ -6,4 +6,5 @@ import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
 
 public interface ProgrammingLanguageRepository extends JpaRepository<ProgrammingLanguage, Integer> {
 
+	boolean existsByName(String name);
 }

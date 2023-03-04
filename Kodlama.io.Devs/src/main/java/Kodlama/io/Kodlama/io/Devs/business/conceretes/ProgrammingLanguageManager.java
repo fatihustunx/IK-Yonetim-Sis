@@ -12,6 +12,7 @@ import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageReq
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetAllProgrammingLanguagesResponse;
 import Kodlama.io.Kodlama.io.Devs.business.responses.GetByIdProgrammingLanguageResponse;
+import Kodlama.io.Kodlama.io.Devs.business.rules.ProgrammingLanguageBusinessRules;
 import Kodlama.io.Kodlama.io.Devs.core.utilities.mappers.ModelMapperService;
 import Kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.ProgrammingLanguageRepository;
 import Kodlama.io.Kodlama.io.Devs.entities.conceretes.ProgrammingLanguage;
@@ -23,6 +24,7 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 
 	private ProgrammingLanguageRepository programmingLanguageRepository;
 	private ProgrammingLanguageCheckService programmingLanguageCheckService;
+	private ProgrammingLanguageBusinessRules programmingLanguageBusinessRules;
 
 	private ModelMapperService modelMapperService;
 
@@ -64,17 +66,27 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 	@Override
 	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {
 
-		if (programmingLanguageCheckService.checkCreateProgrammingLanguage(createProgrammingLanguageRequest,
-				getAll())) {
+		this.programmingLanguageBusinessRules
+				.checkIfProgrammingLanguageNameExists(createProgrammingLanguageRequest.getName());
 
-			ProgrammingLanguage programmingLanguage = this.modelMapperService.forRequest()
-					.map(createProgrammingLanguageRequest, ProgrammingLanguage.class);
+		ProgrammingLanguage programmingLanguage = this.modelMapperService.forRequest()
+				.map(createProgrammingLanguageRequest, ProgrammingLanguage.class);
 
-			programmingLanguageRepository.save(programmingLanguage);
+		this.programmingLanguageRepository.save(programmingLanguage);
 
-		} else {
-			throw new Exception("Check the programming language you are trying to add !");
-		}
+		/*
+		 * if (programmingLanguageCheckService.checkCreateProgrammingLanguage(
+		 * createProgrammingLanguageRequest, getAll())) {
+		 * 
+		 * ProgrammingLanguage programmingLanguage =
+		 * this.modelMapperService.forRequest() .map(createProgrammingLanguageRequest,
+		 * ProgrammingLanguage.class);
+		 * 
+		 * programmingLanguageRepository.save(programmingLanguage);
+		 * 
+		 * } else { throw new
+		 * Exception("Check the programming language you are trying to add !"); }
+		 */
 	}
 
 	@Override
