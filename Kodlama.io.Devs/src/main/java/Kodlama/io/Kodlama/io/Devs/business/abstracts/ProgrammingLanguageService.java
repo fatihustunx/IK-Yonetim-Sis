@@ -9,13 +9,13 @@ import Kodlama.io.Kodlama.io.Devs.business.responses.GetByIdProgrammingLanguageR
 
 public interface ProgrammingLanguageService {
 
-	List<GetAllProgrammingLanguagesResponse> getAll() throws Exception;
+	List<GetAllProgrammingLanguagesResponse> getAll();
 
-	GetByIdProgrammingLanguageResponse getById(int id) throws Exception;
+	GetByIdProgrammingLanguageResponse getById(int id);
 
-	void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception;
+	void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest);
 
-	void update(UpdateProgrammingLanguageRequest updateProgrammingLanguageRequest) throws Exception;
+	void update(UpdateProgrammingLanguageRequest updateProgrammingLanguageRequest);
 
-	void delete(int id) throws Exception;
+	void delete(int id);
 }

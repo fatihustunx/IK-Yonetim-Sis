@@ -1,12 +1,10 @@
 package Kodlama.io.Kodlama.io.Devs.business.conceretes;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageCheckService;
 import Kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
 import Kodlama.io.Kodlama.io.Devs.business.requests.CreateProgrammingLanguageRequest;
 import Kodlama.io.Kodlama.io.Devs.business.requests.UpdateProgrammingLanguageRequest;
@@ -23,20 +21,16 @@ import lombok.AllArgsConstructor;
 public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 
 	private ProgrammingLanguageRepository programmingLanguageRepository;
-	private ProgrammingLanguageCheckService programmingLanguageCheckService;
 	private ProgrammingLanguageBusinessRules programmingLanguageBusinessRules;
 
 	private ModelMapperService modelMapperService;
 
 	@Override
-	public List<GetAllProgrammingLanguagesResponse> getAll() throws Exception {
+	public List<GetAllProgrammingLanguagesResponse> getAll() {
+
+		this.programmingLanguageBusinessRules.checkIfProgrammingLanguagesListExists();
 
 		List<ProgrammingLanguage> programmingLanguages = programmingLanguageRepository.findAll();
-
-		if (programmingLanguages.isEmpty()) {
-
-			throw new Exception("404 not found !");
-		}
 
 		List<GetAllProgrammingLanguagesResponse> programmingLanguagesResponse = programmingLanguages.stream()
 				.map(programmingLanguage -> this.modelMapperService.forResponse().map(programmingLanguage,
@@ -47,24 +41,20 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 	}
 
 	@Override
-	public GetByIdProgrammingLanguageResponse getById(int id) throws Exception {
+	public GetByIdProgrammingLanguageResponse getById(int id) {
 
-		Optional<ProgrammingLanguage> programmingLanguageOptional = programmingLanguageRepository.findById(id);
+		this.programmingLanguageBusinessRules.checkIfProgrammingLanguageIdExistsNot(id);
 
-		if (programmingLanguageOptional.isPresent()) {
+		ProgrammingLanguage programmingLanguageOptional = programmingLanguageRepository.findById(id).orElseThrow();
 
-			GetByIdProgrammingLanguageResponse programmingLanguageResponse = this.modelMapperService.forResponse()
-					.map(programmingLanguageOptional.get(), GetByIdProgrammingLanguageResponse.class);
+		GetByIdProgrammingLanguageResponse programmingLanguageResponse = this.modelMapperService.forResponse()
+				.map(programmingLanguageOptional, GetByIdProgrammingLanguageResponse.class);
 
-			return programmingLanguageResponse;
-
-		} else {
-			throw new Exception("404 not found !");
-		}
+		return programmingLanguageResponse;
 	}
 
 	@Override
-	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) throws Exception {
+	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) {
 
 		this.programmingLanguageBusinessRules
 				.checkIfProgrammingLanguageNameExists(createProgrammingLanguageRequest.getName());
@@ -73,60 +63,31 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 				.map(createProgrammingLanguageRequest, ProgrammingLanguage.class);
 
 		this.programmingLanguageRepository.save(programmingLanguage);
-
-		/*
-		 * if (programmingLanguageCheckService.checkCreateProgrammingLanguage(
-		 * createProgrammingLanguageRequest, getAll())) {
-		 * 
-		 * ProgrammingLanguage programmingLanguage =
-		 * this.modelMapperService.forRequest() .map(createProgrammingLanguageRequest,
-		 * ProgrammingLanguage.class);
-		 * 
-		 * programmingLanguageRepository.save(programmingLanguage);
-		 * 
-		 * } else { throw new
-		 * Exception("Check the programming language you are trying to add !"); }
-		 */
 	}
 
 	@Override
-	public void update(UpdateProgrammingLanguageRequest updateProgrammingLanguageRequest) throws Exception {
+	public void update(UpdateProgrammingLanguageRequest updateProgrammingLanguageRequest) {
 
-		if (getAll() == null) {
-			throw new Exception("Programming languages list is null !");
-		}
+		this.programmingLanguageBusinessRules.checkIfProgrammingLanguagesListExists();
 
-		for (GetAllProgrammingLanguagesResponse getProgrammingLanguageResponse : getAll()) {
+		this.programmingLanguageBusinessRules
+				.checkIfProgrammingLanguageIdExistsNot(updateProgrammingLanguageRequest.getId());
 
-			if (updateProgrammingLanguageRequest.getId() == getProgrammingLanguageResponse.getId()) {
+		this.programmingLanguageBusinessRules
+				.checkIfProgrammingLanguageNameExists(updateProgrammingLanguageRequest.getName());
 
-				if (programmingLanguageCheckService.checkUpdateProgrammingLanguage(updateProgrammingLanguageRequest,
-						getAll())) {
+		ProgrammingLanguage programmingLanguage = this.modelMapperService.forRequest()
+				.map(updateProgrammingLanguageRequest, ProgrammingLanguage.class);
 
-					ProgrammingLanguage programmingLanguage = this.modelMapperService.forRequest()
-							.map(updateProgrammingLanguageRequest, ProgrammingLanguage.class);
-
-					this.programmingLanguageRepository.save(programmingLanguage);
-
-				} else {
-					throw new Exception("Check the programming language you are trying to update !");
-				}
-			} else {
-				throw new Exception("Check the programming language's id you are trying to update !");
-			}
-		}
+		this.programmingLanguageRepository.save(programmingLanguage);
 	}
 
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(int id) {
 
-		Optional<ProgrammingLanguage> optionalProgrammingLanguage = programmingLanguageRepository.findById(id);
+		this.programmingLanguageBusinessRules.checkIfProgrammingLanguageIdExistsNot(id);
 
-		if (optionalProgrammingLanguage.isPresent()) {
-			programmingLanguageRepository.deleteById(id);
-		} else {
-			throw new Exception("404 not found ! | Check the programming language's id you are trying to delete !");
-		}
+		this.programmingLanguageRepository.deleteById(id);
 	}
 
 }

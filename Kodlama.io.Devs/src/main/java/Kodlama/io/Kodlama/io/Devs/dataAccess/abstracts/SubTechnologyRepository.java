@@ -6,4 +6,7 @@ import Kodlama.io.Kodlama.io.Devs.entities.conceretes.SubTechnology;
 
 public interface SubTechnologyRepository extends JpaRepository<SubTechnology, Integer> {
 
+	// boolean existsByProgrammingLanguageId(int id);
+
+	boolean existsByProgrammingLanguageIdAndName(int id, String name);
 }
